@@ -31,10 +31,10 @@
 
 <form id="form">
   <label>IDPEL:</label>
-  <input type="text" id="IDPEL" required />
+  <input type="text" id="idpel" required />
 
   <label>PETUGAS:</label>
-  <input type="text" id="PETUGAS" />
+  <input type="text" id="petugas" />
 
   <label>Koordinat:</label>
   <input type="text" id="koordinat" readonly />
@@ -65,11 +65,11 @@
 
   // Fungsi preview data di peta
   function previewData() {
-    const IDPEL = document.getElementById('IDPEL').value;
-    const PETUGAS = document.getElementById('PETUGAS').value;
+    const idpel = document.getElementById('idpel').value;
+    const petugas = document.getElementById('petugas').value;
     const koordinat = document.getElementById('koordinat').value;
 
-    if (!koordinat || !IDPEL) {
+    if (!koordinat || !idpel) {
       alert("Pilih lokasi di peta dan isi IDPEL pelanggan.");
       return;
     }
@@ -78,25 +78,25 @@
 
     if (previewMarker) map.removeLayer(previewMarker);
     previewMarker = L.marker([lat, lng]).addTo(map)
-      .bindPopup(`<b>${IDPEL}</b><br>${PETUGAS}`).openPopup();
+      .bindPopup(`<b>${idpel}</b><br>${petugas}`).openPopup();
   }
 
   // Submit form simpan data ke Google Sheets
   document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const IDPEL = document.getElementById('IDPEL').value;
-    const PETUGAS = document.getElementById('PETUGAS').value;
+    const idpel = document.getElementById('idpel').value;
+    const petugas = document.getElementById('petugas').value;
     const koordinat = document.getElementById('koordinat').value;
 
-    if (!IDPEL || !koordinat) {
+    if (!idpel || !koordinat) {
       alert("Data belum lengkap.");
       return;
     }
 
     const [lat, lng] = koordinat.split(',').map(Number);
 
-    const data = { IDPEL, PETUGAS, lat, lng };
+    const data = { idpel, petugas, lat, lng };
 
     // Ganti URL ini dengan URL Web App Google Apps Script mu
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZ1Z2bmh__04gwk2SwbS9MIc8lRY-GnWBR6-9RLTQ4LCormBGOo8csdhi7atkbWfU-4Q/exec';
