@@ -115,7 +115,7 @@
     const [lat, lng] = koordinat.split(',').map(Number);
     const data = { idpel, petugas, lat, lng };
 
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzFICSc9t0kZPPT1kD8R0J9DQ8NTwzAYJDgZyo-4nAUrXjHSTjUqvSMdBPF7m2tu8TDOw/exec'; // GANTI URL DI SINI
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUKaY64m6ou9nbt8_4Ht1A5Hm6RNPZ9UNkwyLes8pZibMGVBJdcsUVdHDVTEt_L1TI2g/exec'; // GANTI URL DI SINI
 
     try {
       const response = await fetch(WEB_APP_URL, {
@@ -169,7 +169,7 @@ async function cariData() {
     return;
   }
 
-  const WEB_APP_URL = 'PASTE_WEB_APP_URL_DISINI'; // GANTI URL DI SINI JUGA
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUKaY64m6ou9nbt8_4Ht1A5Hm6RNPZ9UNkwyLes8pZibMGVBJdcsUVdHDVTEt_L1TI2g/exec'; // GANTI URL DI SINI JUGA
 
   try {
     const res = await fetch(WEB_APP_URL);
