@@ -7,6 +7,7 @@
   <style>
     #map { height: 500px; width: 500px; margin-bottom: 15px; }
     form input, form button { margin: 10px 0; display: block; }
+    /* style tombol lokasi di luar peta */
     #lokasiSayaBtn {
       padding: 15px 21px;
       font-size: 16px;
@@ -30,10 +31,10 @@
 
 <form id="form">
   <label>IDPEL:</label>
-  <input type="text" id="idpel" required pattern="\d{12}" minlength="12" maxlength="12" title="IDPEL harus 12 digit angka" />
+  <input type="text" id="idpel" required />
 
   <label>PETUGAS:</label>
-  <input type="text" id="petugas" />
+  <input type="text" id="petugas" required />
 
   <label>Koordinat:</label>
   <input type="text" id="koordinat" readonly />
@@ -44,6 +45,7 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+  // Inisialisasi peta
   const map = L.map('map').setView([-7.557, 110.8784], 11);
   let previewMarker = null;
 
@@ -51,6 +53,7 @@
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
+  // Klik peta untuk pilih koordinat
   map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     const koordinat = `${lat.toFixed(6)},${lng.toFixed(6)}`;
@@ -60,9 +63,10 @@
     previewMarker = L.marker([lat, lng]).addTo(map);
   });
 
+  // Fungsi preview data di peta
   function previewData() {
-    const idpel = document.getElementById('idpel').value;
-    const petugas = document.getElementById('petugas').value;
+    const idpel = document.getElementById('idpel').value.trim();
+    const petugas = document.getElementById('petugas').value.trim();
     const koordinat = document.getElementById('koordinat').value;
 
     if (!koordinat || !idpel) {
@@ -77,50 +81,47 @@
       .bindPopup(`<b>${idpel}</b><br>${petugas}`).openPopup();
   }
 
+  // Submit form simpan data ke Google Sheets dengan validasi petugas wajib
   document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const idpel = document.getElementById('idpel').value.trim();
-    const petugas = document.getElementById('petugas').value;
+    const petugas = document.getElementById('petugas').value.trim();
     const koordinat = document.getElementById('koordinat').value;
-
-    // Validasi IDPEL 12 digit angka
-    const idpelPattern = /^\d{12}$/;
-    if (!idpelPattern.test(idpel)) {
-      alert("IDPEL harus terdiri dari 12 digit angka.");
-      return;
-    }
 
     if (!idpel || !koordinat) {
       alert("Data belum lengkap.");
       return;
     }
 
+    if (!petugas) {
+      alert("Field PETUGAS wajib diisi.");
+      return;
+    }
+
     const [lat, lng] = koordinat.split(',').map(Number);
+
     const data = { idpel, petugas, lat, lng };
-    
-    // Ganti dengan URL Web App Script kamu
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxGo-Y-VCfXGnEDG-P8sO6k5CmqNDP5NodaeHKv0frAvWlJ7r0dKl4dkTp7n8u39myOOw/exec'; 
 
-    try {
-      const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
+    // Ganti URL ini dengan URL Web App Google Apps Script mu
+    const WEB_APP_URL = 'XXXXXXXXXXX';
 
-      if (response.ok) {
-        alert("Data berhasil disimpan ke Google Sheets!");
-        document.getElementById('form').reset();
-        document.getElementById('koordinat').value = '';
-        if (previewMarker) map.removeLayer(previewMarker);
-      } else {
-        alert("Gagal menyimpan data.");
-      }
-    } catch (err) {
-      alert("Terjadi kesalahan saat mengirim data: " + err.message);
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+      alert("Data berhasil disimpan ke Google Sheets!");
+      document.getElementById('form').reset();
+      document.getElementById('koordinat').value = '';
+      if (previewMarker) map.removeLayer(previewMarker);
+    } else {
+      alert("Gagal menyimpan data.");
     }
   });
 
+  // Fungsi tombol Lokasi Saya di luar peta
   document.getElementById('lokasiSayaBtn').addEventListener('click', () => {
     if (!navigator.geolocation) {
       alert("Geolocation tidak didukung oleh browser ini.");
@@ -137,6 +138,8 @@
           .bindPopup("Ini Lokasi Saya").openPopup();
 
         map.setView([lat, lng], 15);
+
+        // Update form koordinat
         document.getElementById('koordinat').value = `${lat.toFixed(6)},${lng.toFixed(6)}`;
       },
       (err) => {
