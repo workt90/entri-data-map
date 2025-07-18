@@ -102,9 +102,12 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxGo-Y-VCfXGnEDG-P8sO6k5CmqNDP5NodaeHKv0frAvWlJ7r0dKl4dkTp7n8u39myOOw/exec';
 
     const response = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(data)
+});
 
     if (response.ok) {
       alert("Data berhasil disimpan ke Google Sheets!");
