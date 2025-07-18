@@ -162,37 +162,36 @@
   });
 
   // Fitur pencarian berdasarkan IDPEL
-  async function cariData() {
-    const cariID = document.getElementById('cariIDPEL').value.trim();
-    if (!cariID) {
-      alert("Masukkan IDPEL untuk mencari.");
-      return;
-    }
-
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzFICSc9t0kZPPT1kD8R0J9DQ8NTwzAYJDgZyo-4nAUrXjHSTjUqvSMdBPF7m2tu8TDOw/exec'; // GANTI URL DI SINI JUGA
-
-    try {
-      const res = await fetch(WEB_APP_URL);
-      const data = await res.json();
-
-      const hasil = data.find(item => item.idpel === cariID);
-      const output = document.getElementById('hasilPencarian');
-
-      if (hasil) {
-        output.innerHTML = `
-          <p><b>IDPEL:</b> ${hasil.idpel}<br>
-          <b>Petugas:</b> ${hasil.petugas}<br>
-          <b>Koordinat:</b> ${hasil.koordinat}</p>
-          <a href="https://www.google.com/maps?q=${hasil.koordinat}" target="_blank">📍 Buka di Google Maps</a>
-        `;
-      } else {
-        output.innerHTML = "<p style='color:red;'>Data tidak ditemukan.</p>";
-      }
-    } catch (err) {
-      alert("Gagal mengambil data.");
-      console.error(err);
-    }
+async function cariData() {
+  const cariID = document.getElementById('cariIDPEL').value.trim();
+  if (!cariID) {
+    alert("Masukkan IDPEL untuk mencari.");
+    return;
   }
+
+  const WEB_APP_URL = 'PASTE_WEB_APP_URL_DISINI'; // GANTI URL DI SINI JUGA
+
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const data = await res.json();
+
+    const hasil = data.find(item => item.idpel === cariID);
+    const output = document.getElementById('hasilPencarian');
+
+    if (hasil) {
+      output.innerHTML = `
+        <p><b>IDPEL:</b> ${hasil.idpel}<br>
+        <b>Koordinat:</b> ${hasil.koordinat}</p>
+        <a href="https://www.google.com/maps?q=${hasil.koordinat}" target="_blank" rel="noopener noreferrer">📍 Buka di Google Maps</a>
+      `;
+    } else {
+      output.innerHTML = "<p style='color:red;'>Data tidak ditemukan.</p>";
+    }
+  } catch (err) {
+    alert("Gagal mengambil data.");
+    console.error(err);
+  }
+}
 </script>
 
 </body>
