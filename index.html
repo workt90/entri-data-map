@@ -5,8 +5,8 @@
   <title>Tag Lokasi Pelanggan dengan Lokasi Saya</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 400px; margin-bottom: 15px; }
-    form input, form button { margin: 5px 0; display: block; }
+    #map { height: 500px; width: 300px; margin-bottom: 15px; }
+    form input, form button { margin: 10px 0; display: block; }
     .leaflet-control-custom {
       background: white;
       cursor: pointer;
@@ -111,11 +111,11 @@
 
   // Tombol Lokasi Saya
   L.control.locate = function(opts) {
-    var control = L.control({position: 'topleft'});
+    var control = L.control({position: 'bottomleft'});
     control.onAdd = function(map) {
       var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
       container.title = "Lokasi Saya";
-      container.innerHTML = '??';
+      container.innerHTML = 'Lokasi Saya';
 
       container.onclick = function(){
         if (!navigator.geolocation) {
