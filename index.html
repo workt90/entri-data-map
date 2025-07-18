@@ -2,13 +2,13 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Input & Cek Lokasi Pelanggan</title>
+  <title>Tag Lokasi Pelanggan dengan Lokasi Saya</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 500px; width: 100%; margin-bottom: 15px; }
-    form input, form button { margin: 10px 0; display: block; width: 100%; max-width: 400px; }
+    #map { height: 500px; width: 500px; margin-bottom: 15px; }
+    form input, form button { margin: 10px 0; display: block; }
     #lokasiSayaBtn {
-      padding: 12px 20px;
+      padding: 15px 21px;
       font-size: 16px;
       cursor: pointer;
       border: 2px solid #ccc;
@@ -20,9 +20,10 @@
     }
     #hasilPencarian {
       margin-top: 20px;
+      background: #f0f0f0;
       padding: 10px;
-      background: #f2f2f2;
-      border-radius: 5px;
+      border-radius: 6px;
+      width: 500px;
     }
   </style>
 </head>
@@ -30,15 +31,18 @@
 
 <h2>Input Lokasi Pelanggan PLN PALUR</h2>
 
-<button id="lokasiSayaBtn">📍 Lokasi Saya</button>
+<!-- Tombol Lokasi Saya -->
+<button id="lokasiSayaBtn">📍 Klik Lokasi Saya</button>
 
+<!-- Peta -->
 <div id="map"></div>
 
+<!-- Form input -->
 <form id="form">
   <label>IDPEL (12 digit):</label>
-  <input type="text" id="idpel" required maxlength="12" pattern="\\d{12}" placeholder="Contoh: 123456789012" />
+  <input type="text" id="idpel" required pattern="\d{12}" minlength="12" maxlength="12" title="IDPEL harus 12 digit angka" />
 
-  <label>Petugas (wajib):</label>
+  <label>PETUGAS:</label>
   <input type="text" id="petugas" required />
 
   <label>Koordinat:</label>
@@ -48,9 +52,9 @@
   <button type="submit">Simpan</button>
 </form>
 
+<!-- Pencarian -->
 <hr>
-
-<h3>Cari Lokasi Pelanggan berdasarkan IDPEL</h3>
+<h3>Cari Lokasi Berdasarkan IDPEL</h3>
 <input type="text" id="cariIDPEL" placeholder="Masukkan IDPEL">
 <button onclick="cariData()">Cari</button>
 
@@ -79,8 +83,8 @@
     const petugas = document.getElementById('petugas').value;
     const koordinat = document.getElementById('koordinat').value;
 
-    if (!idpel || !koordinat || !petugas) {
-      alert("Harap isi IDPEL, petugas, dan pilih lokasi.");
+    if (!koordinat || !idpel || !petugas.trim()) {
+      alert("Lengkapi IDPEL, Petugas, dan pilih lokasi.");
       return;
     }
 
@@ -94,16 +98,16 @@
   document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const idpel = document.getElementById('idpel').value;
-    const petugas = document.getElementById('petugas').value;
+    const idpel = document.getElementById('idpel').value.trim();
+    const petugas = document.getElementById('petugas').value.trim();
     const koordinat = document.getElementById('koordinat').value;
 
     if (!/^\d{12}$/.test(idpel)) {
-      alert("IDPEL harus 12 digit angka.");
+      alert("IDPEL harus terdiri dari 12 digit angka.");
       return;
     }
 
-    if (!petugas.trim()) {
+    if (!petugas) {
       alert("Petugas wajib diisi.");
       return;
     }
@@ -111,59 +115,67 @@
     const [lat, lng] = koordinat.split(',').map(Number);
     const data = { idpel, petugas, lat, lng };
 
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwDPfBK5prXOqB_GOdrajRcy21U0JAm2rWz-U2QpmlfBUqwZT92HbD0A3uHizEIgxCE6Q/exec'; // Ganti dengan URL Web App kamu
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzFICSc9t0kZPPT1kD8R0J9DQ8NTwzAYJDgZyo-4nAUrXjHSTjUqvSMdBPF7m2tu8TDOw/exec'; // GANTI URL DI SINI
 
-    const response = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
 
-    if (response.ok) {
-      alert("Data berhasil disimpan!");
-      document.getElementById('form').reset();
-      document.getElementById('koordinat').value = '';
-      if (previewMarker) map.removeLayer(previewMarker);
-    } else {
-      alert("Gagal menyimpan data.");
+      if (response.ok) {
+        alert("Data berhasil disimpan ke Google Sheets!");
+        document.getElementById('form').reset();
+        document.getElementById('koordinat').value = '';
+        if (previewMarker) map.removeLayer(previewMarker);
+      } else {
+        alert("Gagal menyimpan data.");
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan saat mengirim data: " + err.message);
     }
   });
 
   document.getElementById('lokasiSayaBtn').addEventListener('click', () => {
     if (!navigator.geolocation) {
-      alert("Geolocation tidak didukung browser ini.");
+      alert("Geolocation tidak didukung oleh browser ini.");
       return;
     }
 
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-      if (previewMarker) map.removeLayer(previewMarker);
-      previewMarker = L.marker([lat, lng]).addTo(map)
-        .bindPopup("Ini Lokasi Saya").openPopup();
+        if (previewMarker) map.removeLayer(previewMarker);
+        previewMarker = L.marker([lat, lng]).addTo(map)
+          .bindPopup("Ini Lokasi Saya").openPopup();
 
-      map.setView([lat, lng], 15);
-      document.getElementById('koordinat').value = `${lat.toFixed(6)},${lng.toFixed(6)}`;
-    }, (err) => {
-      alert("Gagal mendapatkan lokasi: " + err.message);
-    });
+        map.setView([lat, lng], 15);
+        document.getElementById('koordinat').value = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+      },
+      (err) => {
+        alert("Gagal mendapatkan lokasi: " + err.message);
+      },
+      { enableHighAccuracy: true }
+    );
   });
 
-  // Cari Data Berdasarkan IDPEL
+  // Fitur pencarian berdasarkan IDPEL
   async function cariData() {
-    const input = document.getElementById('cariIDPEL').value.trim();
-    if (!input) {
-      alert("Masukkan IDPEL yang ingin dicari.");
+    const cariID = document.getElementById('cariIDPEL').value.trim();
+    if (!cariID) {
+      alert("Masukkan IDPEL untuk mencari.");
       return;
     }
 
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwDPfBK5prXOqB_GOdrajRcy21U0JAm2rWz-U2QpmlfBUqwZT92HbD0A3uHizEIgxCE6Q/exec'; // Ganti juga di sini
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzFICSc9t0kZPPT1kD8R0J9DQ8NTwzAYJDgZyo-4nAUrXjHSTjUqvSMdBPF7m2tu8TDOw/exec'; // GANTI URL DI SINI JUGA
 
     try {
       const res = await fetch(WEB_APP_URL);
       const data = await res.json();
 
-      const hasil = data.find(item => item.idpel === input);
+      const hasil = data.find(item => item.idpel === cariID);
       const output = document.getElementById('hasilPencarian');
 
       if (hasil) {
@@ -171,9 +183,7 @@
           <p><b>IDPEL:</b> ${hasil.idpel}<br>
           <b>Petugas:</b> ${hasil.petugas}<br>
           <b>Koordinat:</b> ${hasil.koordinat}</p>
-          <a href="https://www.google.com/maps?q=${hasil.koordinat}" target="_blank">
-            📍 Buka di Google Maps
-          </a>
+          <a href="https://www.google.com/maps?q=${hasil.koordinat}" target="_blank">📍 Buka di Google Maps</a>
         `;
       } else {
         output.innerHTML = "<p style='color:red;'>Data tidak ditemukan.</p>";
